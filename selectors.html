@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Selectors — IXD-404 Week 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&family=Cormorant+Garamond:wght@500&family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500&family=Kalam:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #fafafa; color: #161616;
+    font: 400 14px/20px Inter, system-ui, sans-serif;
+  }
+  main { max-width: 920px; margin: 0 auto; padding: 40px 16px 80px; }
+  header h1 { font-size: 15px; font-weight: 500; margin: 0; }
+  header p { margin: 2px 0 0; color: #777; }
+
+  /* ── Tabs ── */
+  [role=tablist] { display: flex; gap: 24px; margin: 28px 0 32px; border-bottom: 1px solid #e4e4e4; overflow-x: auto; }
+  [role=tab] {
+    appearance: none; background: none; border: 0; padding: 10px 0; margin-bottom: -1px;
+    font: inherit; color: #888; cursor: pointer; border-bottom: 1px solid transparent; white-space: nowrap;
+  }
+  [role=tab]:hover { color: #161616; }
+  [role=tab][aria-selected=true] { color: #161616; border-bottom-color: #161616; }
+  [role=tab]:focus-visible { outline: 2px solid #161616; outline-offset: 2px; }
+
+  /* ── Panel layout ── */
+  .panel { display: grid; grid-template-columns: 360px 1fr; gap: 40px; align-items: start; }
+  .panel[hidden] { display: none; }
+  @media (max-width: 760px) { .panel { grid-template-columns: 1fr; } }
+  .tone { grid-column: 1 / -1; margin: 0; color: #777; }
+  .tone b { color: #161616; font-weight: 500; }
+
+  /* ── List (shared structure; themes restyle it) ── */
+  .list {
+    background: var(--card); color: var(--ink); border-radius: var(--card-r, 16px); padding: 8px 0;
+    font: var(--font);
+  }
+  .grp { padding: 14px var(--pad) 4px; font-size: .68em; line-height: 1.4; letter-spacing: .12em; text-transform: uppercase; opacity: .55; }
+  .row {
+    position: relative; display: flex; align-items: center; gap: var(--gap);
+    min-height: var(--row-h); padding: 0 var(--pad); cursor: pointer; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .row + .row { border-top: var(--divider, 0); }
+  .row.sw .lbl { flex: 1; }
+  .row input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+  .ctl { position: relative; flex: none; display: block; }
+  .ctl svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .row input:focus-visible + .ctl { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+  /* ── Spec ── */
+  .spec h2 { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #777; margin: 0 0 10px; }
+  .spec table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 18px; margin-bottom: 28px; }
+  .spec th, .spec td { text-align: left; vertical-align: top; padding: 7px 12px 7px 0; border-top: 1px solid #e9e9e9; font-weight: 400; }
+  .spec thead th { border-top: 0; color: #777; }
+  .spec tbody th { color: #777; white-space: nowrap; }
+  .spec td { font-variant-numeric: tabular-nums; }
+
+  /* ════════ 1. LOTUS ════════ */
+  .t-lotus {
+    --card: #f7f5ef; --ink: #3d4a44; --pad: 20px; --gap: 14px; --row-h: 56px;
+    --font: 500 20px/28px "Cormorant Garamond", Georgia, serif; --divider: 1px solid #e4e2d6;
+  }
+  .t-lotus .p { transform-box: fill-box; transform-origin: 50% 100%; stroke-width: .5; }
+  /* switch */
+  .t-lotus .sw .ctl { width: 58px; height: 30px; border-radius: 15px; background: #e6e8df; box-shadow: inset 0 0 0 1px #d3d7ca; transition: background .6s ease; }
+  .t-lotus .sw svg { width: 30px; transition: transform .6s cubic-bezier(.4,0,.2,1); }
+  .t-lotus .sw .disc { fill: #fff; filter: drop-shadow(0 1px 1.5px rgb(61 74 68 / .25)); }
+  .t-lotus .sw .p { fill: #cfd3c8; stroke: #b9bdb0; transform: scale(.55); transition: transform .6s ease, fill .6s ease, stroke .6s ease; }
+  .t-lotus .sw .eye { fill: #b9bdb0; transition: fill .6s ease; }
+  .t-lotus .sw input:checked + .ctl { background: #b5dccb; }
+  .t-lotus .sw input:checked + .ctl svg { transform: translateX(28px) rotate(60deg); }
+  .t-lotus .sw input:checked + .ctl .p { fill: #f0b3c7; stroke: #d46a92; transform: none; }
+  .t-lotus .sw input:checked + .ctl .eye { fill: #f2c95c; }
+  /* checkbox */
+  .t-lotus .cb .ctl { width: 26px; height: 26px; border-radius: 9px; background: #fff; border: 1.5px solid #9fb8ab; transition: background .4s ease, border-color .4s ease; }
+  .t-lotus .cb .tick { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 18; stroke-dashoffset: 18; transition: stroke-dashoffset .4s ease; }
+  .t-lotus .cb .p { fill: #f0b3c7; stroke: #d46a92; transform: scale(0); transition: transform .4s ease; }
+  .t-lotus .cb .eye { fill: #f2c95c; transform: scale(0); transform-box: fill-box; transform-origin: center; transition: transform .4s ease; }
+  .t-lotus .cb input:checked + .ctl { background: #5f9c82; border-color: #5f9c82; }
+  .t-lotus .cb input:checked + .ctl .tick { stroke-dashoffset: 0; }
+  .t-lotus .cb input:checked + .ctl :is(.p, .eye) { transform: none; transition-delay: .25s; }
+  /* radio */
+  .t-lotus .rb .ctl { width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 1.5px solid #9fb8ab; transition: border-color .5s ease; }
+  .t-lotus .rb .p { fill: #f0b3c7; stroke: #d46a92; transform: scale(0); transition: transform .5s ease; }
+  .t-lotus .rb .eye { fill: #f2c95c; transform: scale(0); transform-box: fill-box; transform-origin: center; transition: transform .5s ease; }
+  .t-lotus .rb input:checked + .ctl { border-color: #d46a92; }
+  .t-lotus .rb input:checked + .ctl .p { transform: none; transition-delay: calc(var(--i) * 30ms); }
+  .t-lotus .rb input:checked + .ctl .eye { transform: none; }
+
+  /* ════════ 2. BOUNCY ════════ */
+  .t-bouncy {
+    --card: #fff8e7; --ink: #1f1147; --pad: 20px; --gap: 14px; --row-h: 60px; --card-r: 28px;
+    --font: 600 18px/24px "Baloo 2", system-ui, sans-serif;
+    --spring: .45s cubic-bezier(.34,1.8,.5,1);
+  }
+  .t-bouncy .ctl { border: 3px solid var(--ink); background: #fff; box-shadow: 0 3px 0 var(--ink); transition: background .2s, transform .1s, box-shadow .1s; }
+  .t-bouncy .row:active .ctl { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+  /* switch */
+  .t-bouncy .sw .ctl { width: 60px; height: 34px; border-radius: 17px; }
+  .t-bouncy .sw i { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 11px; background: var(--ink); transition: transform var(--spring), width .15s, background .2s; }
+  .t-bouncy .sw:active i { width: 30px; }
+  .t-bouncy .sw input:checked + .ctl { background: #6c4cff; }
+  .t-bouncy .sw input:checked + .ctl i { transform: translateX(26px); background: #ffd23f; }
+  .t-bouncy .sw:active input:checked + .ctl i { transform: translateX(18px); }
+  /* checkbox */
+  .t-bouncy .cb .ctl { width: 30px; height: 30px; border-radius: 10px; }
+  .t-bouncy .cb .tick { fill: none; stroke: var(--ink); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 18; stroke-dashoffset: 18; transition: stroke-dashoffset .25s ease; }
+  .t-bouncy .cb input:checked + .ctl { background: #ffd23f; animation: pop .45s; }
+  .t-bouncy .cb input:checked + .ctl .tick { stroke-dashoffset: 0; }
+  /* radio */
+  .t-bouncy .rb .ctl { width: 30px; height: 30px; border-radius: 50%; }
+  .t-bouncy .rb i { position: absolute; inset: 6px; border-radius: 50%; background: #ff6b6b; transform: scale(0); transition: transform var(--spring); }
+  .t-bouncy .rb input:checked + .ctl { animation: jelly .5s; }
+  .t-bouncy .rb input:checked + .ctl i { transform: none; }
+  @keyframes pop { 30% { transform: scale(.8); } 65% { transform: scale(1.15); } }
+  @keyframes jelly { 25% { transform: scale(1.2,.82); } 50% { transform: scale(.9,1.12); } 75% { transform: scale(1.05,.96); } }
+
+  /* ════════ 3. PAINTERLY ════════ */
+  .t-paint {
+    --card: #efe6d2; --ink: #2b2620; --pad: 20px; --gap: 14px; --row-h: 58px; --card-r: 6px;
+    --font: 400 18px/26px Kalam, "Comic Sans MS", cursive;
+  }
+  .t-paint .list {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .25 0 0 0 0 .15 0 0 0 .12 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .t-paint .ctl svg { filter: url(#rough); }
+  /* switch */
+  .t-paint .sw .ctl { width: 64px; height: 32px; }
+  .t-paint .sw .track { stroke: #b3a68e; stroke-width: 22; stroke-linecap: round; transition: stroke .35s ease; }
+  .t-paint .sw .streak { stroke: #fff; stroke-width: 3; stroke-linecap: round; opacity: .3; }
+  .t-paint .sw .thumb { fill: #fbf6e9; transition: transform .35s ease, fill .35s ease; }
+  .t-paint .sw input:checked + .ctl .track { stroke: #2f4b9c; }
+  .t-paint .sw input:checked + .ctl .thumb { transform: translateX(32px); fill: #dca03a; }
+  /* checkbox */
+  .t-paint .cb .ctl, .t-paint .rb .ctl { width: 30px; height: 30px; }
+  .t-paint .box { fill: #dca03a; fill-opacity: 0; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; transition: fill-opacity .3s ease; }
+  .t-paint .cb .tick { fill: none; stroke: #c8452f; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 34; stroke-dashoffset: 34; transition: stroke-dashoffset .3s ease-out; }
+  .t-paint .cb input:checked + .ctl .box { fill-opacity: .35; }
+  .t-paint .cb input:checked + .ctl .tick { stroke-dashoffset: 0; }
+  /* radio */
+  .t-paint .ring { fill: none; stroke: var(--ink); stroke-width: 2.5; }
+  .t-paint .dab { fill: #3f7f6b; transform-box: fill-box; transform-origin: center; transform: scale(0); transition: transform .3s ease-out; }
+  .t-paint .rb input:checked + .ctl .dab { transform: none; }
+
+  /* ════════ 4. BAKED GOODS ════════ */
+  .t-baked {
+    --card: #fbf3e4; --ink: #4a2c1a; --pad: 20px; --gap: 14px; --row-h: 56px; --card-r: 18px;
+    --font: 500 18px/26px Fraunces, Georgia, serif; --divider: 1px dashed #e3d2b0;
+  }
+  .t-baked :is(.chip, .jam, .cookie) { transform-box: fill-box; transform-origin: center; }
+  /* switch: dough ball bakes into a chocolate-chip cookie */
+  .t-baked .sw .ctl { width: 60px; height: 32px; border-radius: 16px; background: #ede3cf; box-shadow: inset 0 0 0 1px #d9ccb2; transition: background .35s ease, box-shadow .35s ease; }
+  .t-baked .sw svg { inset: 2px auto auto 2px; width: 28px; height: 28px; transition: transform .35s cubic-bezier(.4,0,.2,1); }
+  .t-baked .cookie { fill: #f3e2bd; stroke: #dcc594; stroke-width: 1.5; transform: scale(.86); transition: fill .35s ease, stroke .35s ease, transform .35s ease; }
+  .t-baked .chip { fill: var(--ink); transform: scale(0); transition: transform .25s ease; }
+  .t-baked .sw input:checked + .ctl { background: #f0a04b; box-shadow: inset 0 0 0 1px #d98632; }
+  .t-baked .sw input:checked + .ctl svg { transform: translateX(28px) rotate(90deg); }
+  .t-baked .sw input:checked + .ctl .cookie { fill: #c98a45; stroke: #9c6226; transform: none; }
+  .t-baked .sw input:checked + .ctl .chip { transform: none; transition-delay: .2s; }
+  /* checkbox: plain biscuit gets iced, check piped in white, sprinkles on top */
+  .t-baked .cb .ctl { width: 28px; height: 28px; border-radius: 7px; background: #f6ead0; border: 2px solid #c9a36a; transition: background .35s ease, border-color .35s ease; }
+  .t-baked .cb .tick { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 18; stroke-dashoffset: 18; transition: stroke-dashoffset .3s ease; }
+  .t-baked .cb .sprinkle { opacity: 0; transition: opacity .2s ease; }
+  .t-baked .cb input:checked + .ctl { background: #f4a6b8; border-color: #b5702e; }
+  .t-baked .cb input:checked + .ctl .tick { stroke-dashoffset: 0; transition-delay: .1s; }
+  .t-baked .cb input:checked + .ctl .sprinkle { opacity: 1; transition-delay: .3s; }
+  /* radio: ring doughnut, selected one gets the jam */
+  .t-baked .rb .ctl { width: 28px; height: 28px; }
+  .t-baked .rb .dough { fill: #f1dfb8; stroke: #c9a36a; stroke-width: 1.5; transition: fill .35s ease, stroke .35s ease; }
+  .t-baked .rb .hole { fill: var(--card); stroke: #c9a36a; stroke-width: 1; }
+  .t-baked .rb .jam { fill: #c8324a; transform: scale(0); transition: transform .35s cubic-bezier(.34,1.4,.5,1); }
+  .t-baked .rb .shine { fill: #fff; opacity: 0; transition: opacity .2s ease; }
+  .t-baked .rb input:checked + .ctl .dough { fill: #dba55c; stroke: #9c6226; }
+  .t-baked .rb input:checked + .ctl .jam { transform: none; }
+  .t-baked .rb input:checked + .ctl .shine { opacity: .7; transition-delay: .25s; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition-duration: 0s !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="rough" x="-25%" y="-25%" width="150%" height="150%">
+    <feTurbulence type="fractalNoise" baseFrequency=".09" numOctaves="3" seed="4"/>
+    <feDisplacementMap in="SourceGraphic" scale="4"/>
+  </filter>
+</svg>
+
+<main>
+  <header>
+    <h1>Selectors</h1>
+    <p>IXD-404 · Week 3 · four sets of switch, checkbox, radio</p>
+  </header>
+  <div role="tablist" aria-label="Tone"></div>
+  <div id="panels"></div>
+</main>
+
+<script>
+const petals = (n, rx, ry) => Array.from({ length: n }, (_, i) =>
+  `<g transform="rotate(${i * 360 / n})"><ellipse class="p" style="--i:${i}" cx="0" cy="${-ry}" rx="${rx}" ry="${ry}"/></g>`).join('');
+
+const THEMES = [
+  {
+    id: 'lotus', name: 'Lotus flower', tone: 'Serene',
+    note: 'Each control is a bud that opens into a lotus when on, slowly, like a flower on still water.',
+    sw: `<svg viewBox="-15 -15 30 30"><circle class="disc" r="12.5"/>${petals(6, 3, 5.5)}<circle class="eye" r="2.2"/></svg>`,
+    cb: `<svg viewBox="0 0 23 23"><path class="tick" d="M5.5 12l4 4 8-9"/><g transform="translate(19.5 4)">${petals(5, 1.8, 4)}<circle class="eye" r="1.4"/></g></svg>`,
+    rb: `<svg viewBox="-11.5 -11.5 23 23">${petals(8, 2.4, 4.8)}<circle class="eye" r="2.4"/></svg>`,
+    row: ['56px min', '0 20px', '14px', 'Cormorant Garamond 500', '20px', '28px', '#3D4A44', '1px #E4E2D6'],
+    spec: [
+      ['Size', '58 × 30', '26 × 26', '26 × 26'],
+      ['Roundness', '15px (pill)', '9px', '50%'],
+      ['Stroke', '1px inset #D3D7CA', '1.5px #9FB8AB', '1.5px #9FB8AB'],
+      ['Off', 'Track #E6E8DF, grey bud at 55% scale', 'White fill', 'White fill, empty'],
+      ['On', 'Track #B5DCCB, 6 pink petals open, thumb travels 28px', 'Fill #5F9C82, 2px white check, blossom at tip', 'Stroke #D46A92, 8 petals + #F2C95C centre'],
+      ['Thumb / mark', '30px lotus on 25px white disc', 'Check 2px, blossom 8px', 'Petals 4.8 × 9.6'],
+      ['Motion', '600ms ease', '400ms ease, blossom delayed 250ms', '500ms ease, petals staggered 30ms'],
+    ],
+  },
+  {
+    id: 'bouncy', name: 'Bouncy', tone: 'Playful',
+    note: 'Chunky toy-like shapes with hard shadows. Everything overshoots, squashes and springs back.',
+    sw: `<i></i>`,
+    cb: `<svg viewBox="0 0 24 24"><path class="tick" d="M6 12.5l4 4 8-9"/></svg>`,
+    rb: `<i></i>`,
+    row: ['60px min', '0 20px', '14px', 'Baloo 2 SemiBold (600)', '18px', '24px', '#1F1147', 'none'],
+    spec: [
+      ['Size', '60 × 34', '30 × 30', '30 × 30'],
+      ['Roundness', '17px (pill)', '10px', '50%'],
+      ['Stroke', '3px #1F1147', '3px #1F1147', '3px #1F1147'],
+      ['Shadow', '0 3px 0 #1F1147 (hard)', '0 3px 0 #1F1147', '0 3px 0 #1F1147'],
+      ['Off', 'Track #FFF, thumb #1F1147', 'Fill #FFF', 'Fill #FFF, empty'],
+      ['On', 'Track #6C4CFF, thumb #FFD23F, travels 26px', 'Fill #FFD23F, 3.5px ink check', '18px dot #FF6B6B'],
+      ['Thumb / mark', '22px circle, stretches to 30px on press', 'Check 3.5px round caps', 'Dot inset 6px'],
+      ['Motion', '450ms spring cubic-bezier(.34,1.8,.5,1)', '450ms pop (0.8 → 1.15 → 1)', '500ms jelly squash + spring dot'],
+      ['Pressed', 'Drops 3px, shadow collapses', 'Same', 'Same'],
+    ],
+  },
+  {
+    id: 'paint', name: 'Painterly', tone: 'Raw',
+    note: 'Brush strokes on canvas. Edges wobble, the check overshoots its box, colour goes on as a dab of paint.',
+    sw: `<svg viewBox="0 0 64 32"><path class="track" d="M12 16H52"/><path class="streak" d="M14 10H48"/><circle class="thumb" cx="16" cy="16" r="10"/></svg>`,
+    cb: `<svg viewBox="0 0 30 30"><path class="box" d="M5 6L25 5L26 25L5 26Z"/><path class="tick" d="M7 15l6 7L27 3"/></svg>`,
+    rb: `<svg viewBox="0 0 30 30"><circle class="ring" cx="15" cy="15" r="10.5"/><circle class="dab" cx="15" cy="15" r="6.5"/></svg>`,
+    row: ['58px min', '0 20px', '14px', 'Kalam Regular (400)', '18px', '26px', '#2B2620', 'none'],
+    spec: [
+      ['Size', '64 × 32', '30 × 30', '30 × 30'],
+      ['Roundness', 'Round-cap 22px stroke', 'Hand-drawn quad, ~0', 'Circle r 10.5'],
+      ['Stroke', 'None (track is the stroke)', '2.5px #2B2620', '2.5px #2B2620'],
+      ['Off', 'Track #B3A68E, thumb #FBF6E9', 'Empty', 'Empty'],
+      ['On', 'Track #2F4B9C, thumb #DCA03A, travels 32px', 'Wash #DCA03A 35%, 5px check #C8452F', 'Dab #3F7F6B, r 6.5'],
+      ['Thumb / mark', '20px dab', 'Check overshoots box by ~3px', '13px dab'],
+      ['Texture', 'Turbulence displacement, scale 4', 'Same', 'Same'],
+      ['Motion', '350ms ease', '300ms ease-out stroke draw', '300ms ease-out'],
+    ],
+  },
+  {
+    id: 'baked', name: 'Baked goods', tone: 'Nostalgic',
+    note: 'A bakery counter. Off is raw dough; on is baked, iced or filled, in warm crust-and-butter colours.',
+    sw: `<svg viewBox="-14 -14 28 28"><circle class="cookie" r="12"/><circle class="chip" cx="-4.5" cy="-3.5" r="1.9"/><circle class="chip" cx="4" cy="-5" r="1.5"/><circle class="chip" cx="5" cy="3.5" r="1.9"/><circle class="chip" cx="-3" cy="5.5" r="1.6"/><circle class="chip" cx="0" cy="0" r="1.3"/></svg>`,
+    cb: `<svg viewBox="0 0 24 24"><path class="tick" d="M6 12.5l4 4 8-9"/><g class="sprinkle"><rect x="3" y="5" width="3.6" height="1.4" rx=".7" fill="#ffe08a" transform="rotate(-30 4.8 5.7)"/><rect x="16" y="17.5" width="3.6" height="1.4" rx=".7" fill="#7fc8a9" transform="rotate(40 17.8 18.2)"/><rect x="4" y="18.5" width="3.6" height="1.4" rx=".7" fill="#fff" transform="rotate(15 5.8 19.2)"/><rect x="11" y="3.5" width="3.6" height="1.4" rx=".7" fill="#8ec5ff" transform="rotate(70 12.8 4.2)"/></g></svg>`,
+    rb: `<svg viewBox="-14 -14 28 28"><circle class="dough" r="12.5"/><circle class="hole" r="4.5"/><circle class="jam" r="6"/><ellipse class="shine" cx="-2" cy="-2.2" rx="1.6" ry="1"/></svg>`,
+    row: ['56px min', '0 20px', '14px', 'Fraunces Medium (500)', '18px', '26px', '#4A2C1A', '1px dashed #E3D2B0'],
+    spec: [
+      ['Size', '60 × 32', '28 × 28', '28 × 28'],
+      ['Roundness', '16px (pill)', '7px', '50%'],
+      ['Stroke', '1px inset #D9CCB2', '2px #C9A36A', '1.5px #C9A36A'],
+      ['Off', 'Parchment track #EDE3CF, pale dough ball #F3E2BD at 86% scale', 'Plain biscuit #F6EAD0', 'Plain ring doughnut #F1DFB8, 9px empty hole'],
+      ['On', 'Oven-glow track #F0A04B, baked cookie #C98A45 with 5 chips, travels 28px', 'Pink icing #F4A6B8, crust stroke #B5702E, 3px white piped check, 4 sprinkles', 'Baked #DBA55C, stroke #9C6226, 12px jam centre #C8324A'],
+      ['Thumb / mark', '28px cookie, 2px inset', 'Check 3px round caps', 'Jam dot r 6 with highlight'],
+      ['Motion', '350ms ease, chips appear after 200ms', '350ms ease, check piped after 100ms, sprinkles after 300ms', '350ms, jam overshoots slightly'],
+    ],
+  },
+];
+
+const ROWS = {
+  sw: ['Morning reminders', 'Quiet hours'],
+  cb: ['Jasmine tea', 'Honey', 'Lemon'],
+  rb: ['Small', 'Medium', 'Large'],
+};
+const ROW_PROPS = ['Row height', 'Padding', 'Control–label gap', 'Font', 'Font size', 'Line height', 'Text colour', 'Divider'];
+
+const tablist = document.querySelector('[role=tablist]');
+const panels = document.getElementById('panels');
+
+THEMES.forEach((t, n) => {
+  tablist.insertAdjacentHTML('beforeend',
+    `<button role="tab" id="tab-${t.id}" aria-controls="panel-${t.id}" aria-selected="${!n}" tabindex="${n ? -1 : 0}">${t.name}</button>`);
+
+  const sw = ROWS.sw.map((l, i) =>
+    `<label class="row sw"><span class="lbl">${l}</span><input type="checkbox" role="switch"${i ? '' : ' checked'}><span class="ctl">${t.sw}</span></label>`).join('');
+  const cb = ROWS.cb.map((l, i) =>
+    `<label class="row cb"><input type="checkbox"${i ? '' : ' checked'}><span class="ctl">${t.cb}</span><span class="lbl">${l}</span></label>`).join('');
+  const rb = ROWS.rb.map((l, i) =>
+    `<label class="row rb"><input type="radio" name="size-${t.id}"${i === 1 ? ' checked' : ''}><span class="ctl">${t.rb}</span><span class="lbl">${l}</span></label>`).join('');
+
+  panels.insertAdjacentHTML('beforeend', `
+    <section role="tabpanel" id="panel-${t.id}" aria-labelledby="tab-${t.id}" class="panel t-${t.id}"${n ? ' hidden' : ''}>
+      <p class="tone"><b>${t.name}</b> · tone: ${t.tone}. ${t.note}</p>
+      <div class="list">
+        <div class="grp">Switch</div>${sw}
+        <div class="grp">Checkbox</div>${cb}
+        <div class="grp">Radio</div><div role="radiogroup" aria-label="Size">${rb}</div>
+      </div>
+      <div class="spec">
+        <h2>Components</h2>
+        <table>
+          <thead><tr><th></th><th>Switch</th><th>Checkbox</th><th>Radio</th></tr></thead>
+          <tbody>${t.spec.map(r => `<tr><th>${r[0]}</th><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</tbody>
+        </table>
+        <h2>List row</h2>
+        <table><tbody>${ROW_PROPS.map((p, i) => `<tr><th>${p}</th><td>${t.row[i]}</td></tr>`).join('')}</tbody></table>
+      </div>
+    </section>`);
+});
+
+const tabs = [...tablist.children];
+function select(tab) {
+  tabs.forEach(b => {
+    const on = b === tab;
+    b.setAttribute('aria-selected', on);
+    b.tabIndex = on ? 0 : -1;
+    document.getElementById(b.getAttribute('aria-controls')).hidden = !on;
+  });
+}
+tablist.addEventListener('click', e => { const b = e.target.closest('[role=tab]'); if (b) select(b); });
+tablist.addEventListener('keydown', e => {
+  const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+  if (!d) return;
+  const next = tabs[(tabs.indexOf(document.activeElement) + d + tabs.length) % tabs.length];
+  next.focus(); select(next);
+});
+</script>
+</body>
+</html>
