@@ -6,7 +6,7 @@
 <title>Selectors — IXD-404 Week 3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&family=Cormorant+Garamond:wght@500&family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500&family=Kalam:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&family=Cormorant+Garamond:wght@500&family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500&family=Architects+Daughter&display=swap" rel="stylesheet">
 <style>
   :root { color-scheme: light; }
   * { box-sizing: border-box; }
@@ -49,9 +49,19 @@
   .row + .row { border-top: var(--divider, 0); }
   .row.sw .lbl { flex: 1; }
   .row input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
-  .ctl { position: relative; flex: none; display: block; }
+  .ctl { position: relative; flex: none; display: block; outline: 2px solid transparent; outline-offset: 3px; outline-style: solid; transition: outline-color .2s ease; }
   .ctl svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   .row input:focus-visible + .ctl { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+  /* ── Progressive disclosure ── */
+  .hint { margin: 4px 0 16px; padding: 0 var(--pad, 20px); font: 12px/18px Inter, system-ui, sans-serif; color: #999; }
+  .hint[hidden] { display: none; }
+  .section { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s cubic-bezier(.4,0,.2,1); }
+  .section.unlocked { grid-template-rows: 1fr; }
+  .section[aria-hidden=true] { pointer-events: none; }
+  .section-inner { overflow: hidden; min-height: 0; opacity: 0; transition: opacity .3s ease; }
+  .section.unlocked .section-inner { opacity: 1; transition-delay: .15s; }
+  .row:has(input:disabled) { cursor: default; }
 
   /* ── Spec ── */
   .spec h2 { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #777; margin: 0 0 10px; }
@@ -60,6 +70,18 @@
   .spec thead th { border-top: 0; color: #777; }
   .spec tbody th { color: #777; white-space: nowrap; }
   .spec td { font-variant-numeric: tabular-nums; }
+
+  /* ── Spec hover → control highlight ──
+     JS tags each spec row with data-dim (size / round / stroke / off / on / …), figures out
+     which rows a hovered cell refers to, and toggles these classes directly (see applyHighlight). */
+  .comp-spec :is(td, th):not(:first-child) { transition: background-color .2s ease; cursor: default; }
+  .comp-spec :is(td, th):not(:first-child):hover { background: rgba(255, 193, 7, .22); }
+  .row.sw, .row.cb, .row.rb { transition: background-color .2s ease, box-shadow .2s ease; border-radius: 10px; }
+  .row.hl-row { background: rgba(255, 193, 7, .3); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15); }
+  .ctl.hl-round { outline-color: #d99a00; outline-style: dashed; }
+  .ctl.hl-stroke { outline-color: #d99a00; outline-style: solid; }
+  .mark { outline: 2px solid transparent; outline-offset: 2px; transition: outline-color .2s ease; }
+  .mark.hl-mark { outline-color: #d99a00; outline-style: dotted; }
 
   /* ════════ 1. LOTUS ════════ */
   .t-lotus {
@@ -121,32 +143,33 @@
   @keyframes pop { 30% { transform: scale(.8); } 65% { transform: scale(1.15); } }
   @keyframes jelly { 25% { transform: scale(1.2,.82); } 50% { transform: scale(.9,1.12); } 75% { transform: scale(1.05,.96); } }
 
-  /* ════════ 3. PAINTERLY ════════ */
-  .t-paint {
-    --card: #efe6d2; --ink: #2b2620; --pad: 20px; --gap: 14px; --row-h: 58px; --card-r: 6px;
-    --font: 400 18px/26px Kalam, "Comic Sans MS", cursive;
+  /* ════════ 3. ILLUSTRATED ════════ */
+  .t-illustrated {
+    --card: #f6f1e3; --ink: #2c2a26; --pad: 20px; --gap: 14px; --row-h: 58px; --card-r: 3px;
+    --font: 400 19px/26px "Architects Daughter", "Comic Sans MS", cursive;
   }
-  .t-paint .list {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .25 0 0 0 0 .15 0 0 0 .12 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  .t-illustrated .list {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .25 0 0 0 0 .23 0 0 0 0 .2 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
   }
-  .t-paint .ctl svg { filter: url(#rough); }
+  .t-illustrated .ctl svg { filter: url(#rough); }
   /* switch */
-  .t-paint .sw .ctl { width: 64px; height: 32px; }
-  .t-paint .sw .track { stroke: #b3a68e; stroke-width: 22; stroke-linecap: round; transition: stroke .35s ease; }
-  .t-paint .sw .streak { stroke: #fff; stroke-width: 3; stroke-linecap: round; opacity: .3; }
-  .t-paint .sw .thumb { fill: #fbf6e9; transition: transform .35s ease, fill .35s ease; }
-  .t-paint .sw input:checked + .ctl .track { stroke: #2f4b9c; }
-  .t-paint .sw input:checked + .ctl .thumb { transform: translateX(32px); fill: #dca03a; }
+  .t-illustrated .sw .ctl { width: 64px; height: 32px; }
+  .t-illustrated .sw .track { fill: var(--card); stroke: var(--ink); stroke-width: 2; transition: fill .35s ease; }
+  .t-illustrated .sw .thumb { fill: none; stroke: var(--ink); stroke-width: 2; transition: transform .35s ease, fill .35s ease; }
+  .t-illustrated .sw input:checked + .ctl .track { fill: url(#hatch); }
+  .t-illustrated .sw input:checked + .ctl .thumb { transform: translateX(32px); fill: var(--ink); }
   /* checkbox */
-  .t-paint .cb .ctl, .t-paint .rb .ctl { width: 30px; height: 30px; }
-  .t-paint .box { fill: #dca03a; fill-opacity: 0; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; transition: fill-opacity .3s ease; }
-  .t-paint .cb .tick { fill: none; stroke: #c8452f; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 34; stroke-dashoffset: 34; transition: stroke-dashoffset .3s ease-out; }
-  .t-paint .cb input:checked + .ctl .box { fill-opacity: .35; }
-  .t-paint .cb input:checked + .ctl .tick { stroke-dashoffset: 0; }
+  .t-illustrated .cb .ctl, .t-illustrated .rb .ctl { width: 30px; height: 30px; }
+  .t-illustrated .box { fill: url(#hatch); fill-opacity: 0; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; transition: fill-opacity .25s ease; }
+  .t-illustrated .cb .tick { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 34; stroke-dashoffset: 34; transition: stroke-dashoffset .3s ease-out; }
+  .t-illustrated .cb input:checked + .ctl .box { fill-opacity: 1; }
+  .t-illustrated .cb input:checked + .ctl .tick { stroke-dashoffset: 0; }
   /* radio */
-  .t-paint .ring { fill: none; stroke: var(--ink); stroke-width: 2.5; }
-  .t-paint .dab { fill: #3f7f6b; transform-box: fill-box; transform-origin: center; transform: scale(0); transition: transform .3s ease-out; }
-  .t-paint .rb input:checked + .ctl .dab { transform: none; }
+  .t-illustrated .ring { fill: none; stroke: var(--ink); stroke-width: 2.5; }
+  .t-illustrated .dab { fill: var(--ink); transform-box: fill-box; transform-origin: center; transform: scale(0); transition: transform .3s cubic-bezier(.34,1.4,.5,1); }
+  .t-illustrated .spark { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; opacity: 0; transform: scale(.4); transform-box: fill-box; transform-origin: center; transition: opacity .25s ease, transform .3s ease; }
+  .t-illustrated .rb input:checked + .ctl .dab { transform: none; }
+  .t-illustrated .rb input:checked + .ctl .spark { opacity: 1; transform: none; transition-delay: .15s; }
 
   /* ════════ 4. BAKED GOODS ════════ */
   .t-baked {
@@ -190,6 +213,9 @@
     <feTurbulence type="fractalNoise" baseFrequency=".09" numOctaves="3" seed="4"/>
     <feDisplacementMap in="SourceGraphic" scale="4"/>
   </filter>
+  <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <line x1="0" y1="0" x2="0" y2="7" stroke="#2c2a26" stroke-width="1.1"/>
+  </pattern>
 </svg>
 
 <main>
@@ -209,9 +235,9 @@ const THEMES = [
   {
     id: 'lotus', name: 'Lotus flower', tone: 'Serene',
     note: 'Each control is a bud that opens into a lotus when on, slowly, like a flower on still water.',
-    sw: `<svg viewBox="-15 -15 30 30"><circle class="disc" r="12.5"/>${petals(6, 3, 5.5)}<circle class="eye" r="2.2"/></svg>`,
-    cb: `<svg viewBox="0 0 23 23"><path class="tick" d="M5.5 12l4 4 8-9"/><g transform="translate(19.5 4)">${petals(5, 1.8, 4)}<circle class="eye" r="1.4"/></g></svg>`,
-    rb: `<svg viewBox="-11.5 -11.5 23 23">${petals(8, 2.4, 4.8)}<circle class="eye" r="2.4"/></svg>`,
+    sw: `<svg class="mark" viewBox="-15 -15 30 30"><circle class="disc" r="12.5"/>${petals(6, 3, 5.5)}<circle class="eye" r="2.2"/></svg>`,
+    cb: `<svg viewBox="0 0 23 23"><path class="tick mark" d="M5.5 12l4 4 8-9"/><g class="mark" transform="translate(19.5 4)">${petals(5, 1.8, 4)}<circle class="eye" r="1.4"/></g></svg>`,
+    rb: `<svg class="mark" viewBox="-11.5 -11.5 23 23">${petals(8, 2.4, 4.8)}<circle class="eye" r="2.4"/></svg>`,
     row: ['56px min', '0 20px', '14px', 'Cormorant Garamond 500', '20px', '28px', '#3D4A44', '1px #E4E2D6'],
     spec: [
       ['Size', '58 × 30', '26 × 26', '26 × 26'],
@@ -226,9 +252,9 @@ const THEMES = [
   {
     id: 'bouncy', name: 'Bouncy', tone: 'Playful',
     note: 'Chunky toy-like shapes with hard shadows. Everything overshoots, squashes and springs back.',
-    sw: `<i></i>`,
-    cb: `<svg viewBox="0 0 24 24"><path class="tick" d="M6 12.5l4 4 8-9"/></svg>`,
-    rb: `<i></i>`,
+    sw: `<i class="mark"></i>`,
+    cb: `<svg viewBox="0 0 24 24"><path class="tick mark" d="M6 12.5l4 4 8-9"/></svg>`,
+    rb: `<i class="mark"></i>`,
     row: ['60px min', '0 20px', '14px', 'Baloo 2 SemiBold (600)', '18px', '24px', '#1F1147', 'none'],
     spec: [
       ['Size', '60 × 34', '30 × 30', '30 × 30'],
@@ -243,29 +269,29 @@ const THEMES = [
     ],
   },
   {
-    id: 'paint', name: 'Painterly', tone: 'Raw',
-    note: 'Brush strokes on canvas. Edges wobble, the check overshoots its box, colour goes on as a dab of paint.',
-    sw: `<svg viewBox="0 0 64 32"><path class="track" d="M12 16H52"/><path class="streak" d="M14 10H48"/><circle class="thumb" cx="16" cy="16" r="10"/></svg>`,
-    cb: `<svg viewBox="0 0 30 30"><path class="box" d="M5 6L25 5L26 25L5 26Z"/><path class="tick" d="M7 15l6 7L27 3"/></svg>`,
-    rb: `<svg viewBox="0 0 30 30"><circle class="ring" cx="15" cy="15" r="10.5"/><circle class="dab" cx="15" cy="15" r="6.5"/></svg>`,
-    row: ['58px min', '0 20px', '14px', 'Kalam Regular (400)', '18px', '26px', '#2B2620', 'none'],
+    id: 'illustrated', name: 'Illustrated', tone: 'Sketched',
+    note: 'A paper wireframe sketch — loose hand-drawn ink, wobbly lines. Cross-hatching stands in for "on," the way a sketch shades a selected box.',
+    sw: `<svg viewBox="0 0 64 32"><rect class="track" x="2" y="4" width="60" height="24" rx="12"/><circle class="thumb mark" cx="16" cy="16" r="9"/></svg>`,
+    cb: `<svg viewBox="0 0 30 30"><path class="box" d="M5 6L25 5L26 25L5 26Z"/><path class="tick mark" d="M7 15l6 7L27 3"/></svg>`,
+    rb: `<svg viewBox="0 0 30 30"><circle class="ring" cx="15" cy="15" r="10.5"/><circle class="dab mark" cx="15" cy="15" r="6"/><g class="spark mark"><path d="M23 3L23 11M19 7L27 7M20.4 4.4L25.6 9.6M20.4 9.6L25.6 4.4"/></g></svg>`,
+    row: ['58px min', '0 20px', '14px', 'Architects Daughter (400)', '19px', '26px', '#2C2A26', 'none'],
     spec: [
       ['Size', '64 × 32', '30 × 30', '30 × 30'],
-      ['Roundness', 'Round-cap 22px stroke', 'Hand-drawn quad, ~0', 'Circle r 10.5'],
-      ['Stroke', 'None (track is the stroke)', '2.5px #2B2620', '2.5px #2B2620'],
-      ['Off', 'Track #B3A68E, thumb #FBF6E9', 'Empty', 'Empty'],
-      ['On', 'Track #2F4B9C, thumb #DCA03A, travels 32px', 'Wash #DCA03A 35%, 5px check #C8452F', 'Dab #3F7F6B, r 6.5'],
-      ['Thumb / mark', '20px dab', 'Check overshoots box by ~3px', '13px dab'],
-      ['Texture', 'Turbulence displacement, scale 4', 'Same', 'Same'],
-      ['Motion', '350ms ease', '300ms ease-out stroke draw', '300ms ease-out'],
+      ['Roundness', '12px pill outline', 'Hand-drawn quad, ~0', 'Circle r 10.5'],
+      ['Stroke', '2px #2C2A26', '2.5px #2C2A26', '2.5px #2C2A26'],
+      ['Off', 'Outline only, ring thumb', 'Empty quad', 'Empty ring'],
+      ['On', 'Track cross-hatched, ink thumb travels 32px', 'Quad fills with cross-hatch, 3px ink check', 'Ink dot r 6 + 4-point spark'],
+      ['Thumb / mark', '18px ring → filled dot', 'Check draws in, hatch fills', '12px dot, spark beside it'],
+      ['Texture', 'Hand-wobble displacement + cross-hatch fill', 'Same', 'Same'],
+      ['Motion', '350ms ease', '300ms ease-out stroke draw', '300ms spring, spark delayed 150ms'],
     ],
   },
   {
     id: 'baked', name: 'Baked goods', tone: 'Nostalgic',
     note: 'A bakery counter. Off is raw dough; on is baked, iced or filled, in warm crust-and-butter colours.',
-    sw: `<svg viewBox="-14 -14 28 28"><circle class="cookie" r="12"/><circle class="chip" cx="-4.5" cy="-3.5" r="1.9"/><circle class="chip" cx="4" cy="-5" r="1.5"/><circle class="chip" cx="5" cy="3.5" r="1.9"/><circle class="chip" cx="-3" cy="5.5" r="1.6"/><circle class="chip" cx="0" cy="0" r="1.3"/></svg>`,
-    cb: `<svg viewBox="0 0 24 24"><path class="tick" d="M6 12.5l4 4 8-9"/><g class="sprinkle"><rect x="3" y="5" width="3.6" height="1.4" rx=".7" fill="#ffe08a" transform="rotate(-30 4.8 5.7)"/><rect x="16" y="17.5" width="3.6" height="1.4" rx=".7" fill="#7fc8a9" transform="rotate(40 17.8 18.2)"/><rect x="4" y="18.5" width="3.6" height="1.4" rx=".7" fill="#fff" transform="rotate(15 5.8 19.2)"/><rect x="11" y="3.5" width="3.6" height="1.4" rx=".7" fill="#8ec5ff" transform="rotate(70 12.8 4.2)"/></g></svg>`,
-    rb: `<svg viewBox="-14 -14 28 28"><circle class="dough" r="12.5"/><circle class="hole" r="4.5"/><circle class="jam" r="6"/><ellipse class="shine" cx="-2" cy="-2.2" rx="1.6" ry="1"/></svg>`,
+    sw: `<svg class="mark" viewBox="-14 -14 28 28"><circle class="cookie" r="12"/><circle class="chip" cx="-4.5" cy="-3.5" r="1.9"/><circle class="chip" cx="4" cy="-5" r="1.5"/><circle class="chip" cx="5" cy="3.5" r="1.9"/><circle class="chip" cx="-3" cy="5.5" r="1.6"/><circle class="chip" cx="0" cy="0" r="1.3"/></svg>`,
+    cb: `<svg viewBox="0 0 24 24"><path class="tick mark" d="M6 12.5l4 4 8-9"/><g class="sprinkle"><rect x="3" y="5" width="3.6" height="1.4" rx=".7" fill="#ffe08a" transform="rotate(-30 4.8 5.7)"/><rect x="16" y="17.5" width="3.6" height="1.4" rx=".7" fill="#7fc8a9" transform="rotate(40 17.8 18.2)"/><rect x="4" y="18.5" width="3.6" height="1.4" rx=".7" fill="#fff" transform="rotate(15 5.8 19.2)"/><rect x="11" y="3.5" width="3.6" height="1.4" rx=".7" fill="#8ec5ff" transform="rotate(70 12.8 4.2)"/></g></svg>`,
+    rb: `<svg viewBox="-14 -14 28 28"><circle class="dough" r="12.5"/><circle class="hole" r="4.5"/><circle class="jam mark" r="6"/><ellipse class="shine mark" cx="-2" cy="-2.2" rx="1.6" ry="1"/></svg>`,
     row: ['56px min', '0 20px', '14px', 'Fraunces Medium (500)', '18px', '26px', '#4A2C1A', '1px dashed #E3D2B0'],
     spec: [
       ['Size', '60 × 32', '28 × 28', '28 × 28'],
@@ -286,6 +312,17 @@ const ROWS = {
 };
 const ROW_PROPS = ['Row height', 'Padding', 'Control–label gap', 'Font', 'Font size', 'Line height', 'Text colour', 'Divider'];
 
+function dimOf(label) {
+  const l = label.toLowerCase();
+  if (l.startsWith('size')) return 'size';
+  if (l.startsWith('round')) return 'round';
+  if (l.startsWith('stroke')) return 'stroke';
+  if (l === 'off') return 'off';
+  if (l === 'on') return 'on';
+  if (l.startsWith('thumb')) return 'thumb';
+  return 'other';
+}
+
 const tablist = document.querySelector('[role=tablist]');
 const panels = document.getElementById('panels');
 
@@ -305,19 +342,86 @@ THEMES.forEach((t, n) => {
       <p class="tone"><b>${t.name}</b> · tone: ${t.tone}. ${t.note}</p>
       <div class="list">
         <div class="grp">Switch</div>${sw}
-        <div class="grp">Checkbox</div>${cb}
-        <div class="grp">Radio</div><div role="radiogroup" aria-label="Size">${rb}</div>
+        <p class="hint" data-for="cb">Turn both switches on to unlock tea</p>
+        <div class="section" data-section="cb">
+          <div class="section-inner">
+            <div class="grp">Checkbox</div>${cb}
+          </div>
+        </div>
+        <p class="hint" data-for="rb">Check all three teas to unlock size</p>
+        <div class="section" data-section="rb">
+          <div class="section-inner">
+            <div class="grp">Radio</div><div role="radiogroup" aria-label="Size">${rb}</div>
+          </div>
+        </div>
       </div>
       <div class="spec">
         <h2>Components</h2>
-        <table>
+        <table class="comp-spec">
           <thead><tr><th></th><th>Switch</th><th>Checkbox</th><th>Radio</th></tr></thead>
-          <tbody>${t.spec.map(r => `<tr><th>${r[0]}</th><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</tbody>
+          <tbody>${t.spec.map(r => `<tr data-dim="${dimOf(r[0])}"><th>${r[0]}</th><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</tbody>
         </table>
         <h2>List row</h2>
         <table><tbody>${ROW_PROPS.map((p, i) => `<tr><th>${p}</th><td>${t.row[i]}</td></tr>`).join('')}</tbody></table>
       </div>
     </section>`);
+});
+
+function updateLocks(panel) {
+  const cbSection = panel.querySelector('[data-section="cb"]');
+  const cbHint = panel.querySelector('.hint[data-for="cb"]');
+  const cbInputs = [...cbSection.querySelectorAll('input')];
+  const swOn = [...panel.querySelectorAll('.sw input')].every(i => i.checked);
+  cbSection.classList.toggle('unlocked', swOn);
+  cbSection.setAttribute('aria-hidden', String(!swOn));
+  cbInputs.forEach(i => i.disabled = !swOn);
+  cbHint.hidden = swOn;
+
+  const rbSection = panel.querySelector('[data-section="rb"]');
+  const rbHint = panel.querySelector('.hint[data-for="rb"]');
+  const rbInputs = [...rbSection.querySelectorAll('input')];
+  const cbOn = swOn && cbInputs.every(i => i.checked);
+  rbSection.classList.toggle('unlocked', cbOn);
+  rbSection.setAttribute('aria-hidden', String(!cbOn));
+  rbInputs.forEach(i => i.disabled = !cbOn);
+  rbHint.hidden = cbOn || !swOn;
+}
+panels.addEventListener('change', e => {
+  const panel = e.target.closest('.panel');
+  if (panel) updateLocks(panel);
+});
+document.querySelectorAll('.panel').forEach(updateLocks);
+
+const COL_BY_INDEX = { 1: 'sw', 2: 'cb', 3: 'rb' };
+function clearHighlight(panel) {
+  panel.querySelectorAll('.hl-row').forEach(el => el.classList.remove('hl-row'));
+  panel.querySelectorAll('.hl-round').forEach(el => el.classList.remove('hl-round'));
+  panel.querySelectorAll('.hl-stroke').forEach(el => el.classList.remove('hl-stroke'));
+  panel.querySelectorAll('.hl-mark').forEach(el => el.classList.remove('hl-mark'));
+}
+function applyHighlight(panel, col, dim) {
+  clearHighlight(panel);
+  const rows = [...panel.querySelectorAll('.row.' + col)];
+  if (dim === 'round') rows.forEach(r => r.querySelector('.ctl').classList.add('hl-round'));
+  else if (dim === 'stroke') rows.forEach(r => r.querySelector('.ctl').classList.add('hl-stroke'));
+  else if (dim === 'thumb') rows.forEach(r => r.querySelectorAll('.mark').forEach(el => el.classList.add('hl-mark')));
+  else if (dim === 'off') rows.filter(r => !r.querySelector('input').checked).forEach(r => r.classList.add('hl-row'));
+  else if (dim === 'on') rows.filter(r => r.querySelector('input').checked).forEach(r => r.classList.add('hl-row'));
+  else rows.forEach(r => r.classList.add('hl-row'));
+}
+panels.addEventListener('mouseover', e => {
+  const cell = e.target.closest('.comp-spec td, .comp-spec th');
+  if (!cell) return;
+  const col = COL_BY_INDEX[[...cell.parentElement.children].indexOf(cell)];
+  if (!col) return;
+  applyHighlight(cell.closest('.panel'), col, cell.closest('tr').dataset.dim || '');
+});
+panels.addEventListener('mouseout', e => {
+  const cell = e.target.closest('.comp-spec td, .comp-spec th');
+  if (!cell) return;
+  const table = cell.closest('.comp-spec');
+  if (table.contains(e.relatedTarget)) return;
+  clearHighlight(cell.closest('.panel'));
 });
 
 const tabs = [...tablist.children];
